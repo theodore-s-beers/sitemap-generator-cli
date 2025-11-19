@@ -1,37 +1,22 @@
 {
   "name": "sitemap-generator-cli",
-  "version": "7.5.0",
-  "description": "Create xml sitemaps from the command line.",
-  "homepage": "https://github.com/lgraubner/sitemap-generator-cli",
-  "author": {
-    "name": "Lars Graubner",
-    "email": "mail@larsgraubner.de",
-    "url": "http://larsgraubner.de"
-  },
-  "keywords": [
-    "sitemap",
-    "xml",
-    "sitemap.xml",
-    "generator",
-    "crawler",
-    "seo",
-    "google",
-    "ecosystem:node"
-  ],
+  "version": "0.1.0",
+  "description": "Create XML sitemaps from the command line",
+  "license": "MIT",
   "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/lgraubner/sitemap-generator-cli.git"
+  "bin": {
+    "sitemap-generator": "index.js"
   },
-  "bugs": {
-    "url": "https://github.com/lgraubner/sitemap-generator-cli/issues"
+  "scripts": {
+    "lint": "eslint .",
+    "test": "jest"
   },
   "dependencies": {
     "chalk": "2.4.1",
     "commander": "2.19.0",
-    "sitemap-generator": "8.4.0",
     "http-proxy-agent": "4.0.1",
-    "https-proxy-agent": "5.0.0"
+    "https-proxy-agent": "5.0.0",
+    "sitemap-generator": "theodore-s-beers/sitemap-generator"
   },
   "devDependencies": {
     "eslint": "5.9.0",
@@ -40,50 +25,5 @@
     "jest": "23.6.0",
     "lint-staged": "8.1.0",
     "prettier": "1.15.3"
-  },
-  "preferGlobal": true,
-  "engines": {
-    "node": ">=6"
-  },
-  "bin": {
-    "sitemap-generator": "index.js"
-  },
-  "license": "MIT",
-  "scripts": {
-    "lint": "eslint .",
-    "test": "jest"
-  },
-  "lint-staged": {
-    "*.js": [
-      "eslint --fix",
-      "prettier --write",
-      "git add"
-    ]
-  },
-  "prettier": {
-    "singleQuote": true
-  },
-  "eslintConfig": {
-    "parserOptions": {
-      "ecmaVersion": 6
-    },
-    "extends": [
-      "eslint:recommended"
-    ],
-    "env": {
-      "jest": true,
-      "node": true
-    },
-    "rules": {
-      "no-console": 0
-    }
-  },
-  "jest": {
-    "testEnvironment": "node"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   }
 }
