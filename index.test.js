@@ -1,47 +1,67 @@
-const execa = require('execa');
-const fs = require('fs');
+import { spawn } from "child_process";
+import { access, unlink, readFile } from "fs/promises";
+import { afterEach, test, expect } from "vitest";
 
-afterEach(done => {
-  fs.access('sitemap.xml', err => {
-    if (!err) {
-      fs.unlink('sitemap.xml', done);
-    }
-  });
+afterEach(async () => {
+  try {
+    await access("sitemap.xml");
+    await unlink("sitemap.xml");
+  } catch {
+    // File doesn't exist, nothing to clean up
+  }
 });
 
-test('should create sitemap file', () => {
-  expect.assertions(1);
+async function runCommand(args) {
+  return new Promise((resolve, reject) => {
+    const child = spawn("node", args);
+    let stdout = "";
+    let stderr = "";
 
-  return execa('node', ['index.js', 'http://example.com', 'sitemap.xml']).then(
-    () => {
-      expect(() => fs.accessSync('sitemap.xml')).not.toThrow();
-    }
-  );
-}, 20000);
+    child.stdout.on("data", (data) => {
+      stdout += data.toString();
+    });
 
-test('should write to stdout in verbose mode', () => {
-  expect.assertions(1);
+    child.stderr.on("data", (data) => {
+      stderr += data.toString();
+    });
 
-  return execa('node', [
-    'index.js',
-    'http://example.com',
-    'sitemap.xml',
-    '--verbose'
-  ]).then(result => {
-    expect(result.stdout).not.toBe('');
-  });
-}, 20000);
-
-test('should adds last-mod header to xml', () => {
-  return execa('node', [
-    'index.js',
-    'http://example.com',
-    'sitemap.xml',
-    '--last-mod'
-  ]).then(() => {
-    fs.readFile('sitemap.xml', 'utf8', (err, data) => {
-      if (err) throw err;
-      expect(data).toContain('<lastmod>');
+    child.on("close", (code) => {
+      if (code !== 0) {
+        reject(new Error(`Process exited with code ${code}\n${stderr}`));
+      } else {
+        resolve({ stdout, stderr });
+      }
     });
   });
+}
+
+test("should create sitemap file", async () => {
+  await runCommand(["index.js", "http://example.com", "-f", "sitemap.xml"]);
+
+  await expect(access("sitemap.xml")).resolves.toBeUndefined();
+}, 20000);
+
+test("should write to stdout in verbose mode", async () => {
+  const result = await runCommand([
+    "index.js",
+    "http://example.com",
+    "-f",
+    "sitemap.xml",
+    "--verbose",
+  ]);
+
+  expect(result.stdout).not.toBe("");
+}, 20000);
+
+test("should add last-mod header to xml", async () => {
+  await runCommand([
+    "index.js",
+    "http://example.com",
+    "-f",
+    "sitemap.xml",
+    "--last-mod",
+  ]);
+
+  const data = await readFile("sitemap.xml", "utf8");
+  expect(data).toContain("<lastmod>");
 }, 20000);

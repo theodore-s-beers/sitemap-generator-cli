@@ -1,137 +1,127 @@
-#!/usr/bin/env node
+#! /usr/bin/env node
 
-const program = require('commander');
-const SitemapGenerator = require('sitemap-generator');
-const chalk = require('chalk');
-const httpagent = require('http-proxy-agent');
-const httpsagent = require('https-proxy-agent');
+import { Command } from "commander";
+import SitemapGenerator from "sitemap-generator";
+import chalk from "chalk";
+import { HttpProxyAgent } from "http-proxy-agent";
+import { HttpsProxyAgent } from "https-proxy-agent";
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
-const pkg = require('./package.json');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-function sitemapFactory() {
-  program
-    .version(pkg.version)
-    .usage('[options] <url>')
-    .option(
-      '-f, --filepath <filepath>',
-      'path to file including filename',
-      'sitemap.xml'
-    )
-    .option(
-      '-m, --max-entries <maxEntries>',
-      'limits the maximum number of URLs per sitemap file',
-      50000
-    )
-    .option(
-      '-d, --max-depth <maxDepth>',
-      'limits the maximum distance from the original request',
-      0
-    )
-    .option('-q, --query', 'consider query string')
-    .option('-u, --user-agent <agent>', 'set custom User Agent')
-    .option('-v, --verbose', 'print details when crawling')
-    .option(
-      '-c, --max-concurrency <maxConcurrency>',
-      'maximum number of requests the crawler will run simultaneously',
-      v => {
-        return parseInt(v);
-      },
-      5
-    )
-    .option(
-      '-r, --no-respect-robots-txt',
-      'controls whether the crawler should respect rules in robots.txt',
-      true
-    )
-    .option('-l, --last-mod', 'add Last-Modified header to xml', true)
-    .option(
-      '-g, --change-freq <changeFreq>',
-      'adds a <changefreq> line to each URL in the sitemap.'
-    )
-    .option(
-      '-p, --priority-map <priorityMap>',
-      'priority for each depth url, values between 1.0 and 0.0, example: "1.0,0.8,0.6,0.4" '
-    )
-    .option('-x, --proxy <url>', 'Use the passed proxy URL')
-    .parse(process.argv);
+const pkg = JSON.parse(readFileSync(join(__dirname, "package.json"), "utf8"));
 
-  // display help if no url/filepath provided
-  if (program.args.length < 1) {
-    program.help();
-    process.exit();
-  }
+const program = new Command();
 
-  let arrayPriority = [];
-  if (program.priorityMap) {
-    arrayPriority = program.priorityMap.split(',');
-  }
+program
+  .version(pkg.version)
+  .argument("<url>", "URL to generate sitemap for")
+  .option(
+    "-f, --filepath <filepath>",
+    "path to file including filename",
+    "sitemap.xml",
+  )
+  .option(
+    "-m, --max-entries <maxEntries>",
+    "limits the maximum number of URLs per sitemap file",
+    "50000",
+  )
+  .option(
+    "-d, --max-depth <maxDepth>",
+    "limits the maximum distance from the original request",
+    "0",
+  )
+  .option("-q, --query", "consider query string")
+  .option("-u, --user-agent <agent>", "set custom User Agent")
+  .option("-v, --verbose", "print details when crawling")
+  .option(
+    "-c, --max-concurrency <maxConcurrency>",
+    "maximum number of requests the crawler will run simultaneously",
+    "5",
+  )
+  .option(
+    "-r, --no-respect-robots-txt",
+    "controls whether the crawler should respect rules in robots.txt",
+  )
+  .option("-l, --last-mod", "add Last-Modified header to xml")
+  .option(
+    "-g, --change-freq <changeFreq>",
+    "adds a <changefreq> line to each URL in the sitemap.",
+  )
+  .option(
+    "-p, --priority-map <priorityMap>",
+    'priority for each depth url, values between 1.0 and 0.0, example: "1.0,0.8,0.6,0.4"',
+  )
+  .option("-x, --proxy <url>", "Use the passed proxy URL")
+  .action((url, options) => {
+    let arrayPriority = [];
+    if (options.priorityMap) {
+      arrayPriority = options.priorityMap.split(",");
+    }
 
-  const options = {
-    stripQuerystring: !program.query,
-    filepath: program.filepath,
-    maxEntriesPerFile: program.maxEntries,
-    maxDepth: program.maxDepth,
-    maxConcurrency: program.maxConcurrency,
-    respectRobotsTxt: !!program.respectRobotsTxt,
-    lastMod: !!program.lastMod,
-    changeFreq: program.changeFreq,
-    priorityMap: arrayPriority
-  };
-  // only pass if set to keep default
-  if (program.userAgent) {
-    options.userAgent = program.userAgent;
-  }
+    const generatorOptions = {
+      stripQuerystring: !options.query,
+      filepath: options.filepath,
+      maxEntriesPerFile: parseInt(options.maxEntries),
+      maxDepth: parseInt(options.maxDepth),
+      maxConcurrency: parseInt(options.maxConcurrency),
+      respectRobotsTxt: options.respectRobotsTxt,
+      lastMod: options.lastMod,
+      changeFreq: options.changeFreq,
+      priorityMap: arrayPriority,
+    };
 
-  // make use of proxy URL if passeds to us
-  if (program.proxy) {
-    var httpProxyAgent = new httpagent(program.proxy);
-    var httpsProxyAgent = new httpsagent(program.proxy);
-    options.httpAgent = httpProxyAgent;
-    options.httpsAgent = httpsProxyAgent;
-  }
+    if (options.userAgent) {
+      generatorOptions.userAgent = options.userAgent;
+    }
 
-  const generator = SitemapGenerator(program.args[0], options);
-  if (program.verbose) {
-    let added = 0;
-    let ignored = 0;
-    let errored = 0;
+    if (options.proxy) {
+      const httpProxyAgent = new HttpProxyAgent(options.proxy);
+      const httpsProxyAgent = new HttpsProxyAgent(options.proxy);
+      generatorOptions.httpAgent = httpProxyAgent;
+      generatorOptions.httpsAgent = httpsProxyAgent;
+    }
 
-    // add event listeners to crawler if verbose mode enabled
-    generator.on('add', url => {
-      added += 1;
+    const generator = SitemapGenerator(url, generatorOptions);
 
-      console.log('[', chalk.green('ADD'), ']', chalk.gray(url));
-    });
+    if (options.verbose) {
+      let added = 0;
+      let ignored = 0;
+      let errored = 0;
 
-    generator.on('ignore', url => {
-      ignored += 1;
-      console.log('[', chalk.cyan('IGN'), ']', chalk.gray(url));
-    });
+      generator.on("add", (url) => {
+        added += 1;
+        console.log("[", chalk.green("ADD"), "]", chalk.gray(url));
+      });
 
-    generator.on('error', error => {
-      errored += 1;
-      console.error(
-        '[',
-        chalk.red('ERR'),
-        ']',
-        chalk.gray(error.url, ` (${error.code})`)
-      );
-    });
+      generator.on("ignore", (url) => {
+        ignored += 1;
+        console.log("[", chalk.cyan("IGN"), "]", chalk.gray(url));
+      });
 
-    generator.on('done', () => {
-      // show stats if dry mode
-      if (program.verbose) {
+      generator.on("error", (error) => {
+        errored += 1;
+        console.error(
+          "[",
+          chalk.red("ERR"),
+          "]",
+          chalk.gray(error.url, ` (${error.code})`),
+        );
+      });
+
+      generator.on("done", () => {
         const message =
-          'Added %s pages, ignored %s pages, encountered %s errors.';
+          "Added %s pages, ignored %s pages, encountered %s errors.";
         const stats = [chalk.white(message), added, ignored, errored];
         console.log.apply(this, stats);
-      }
+        process.exit(0);
+      });
+    }
 
-      process.exit(0);
-    });
-  }
+    generator.start();
+  });
 
-  generator.start();
-}
-
-sitemapFactory();
+program.parse();
