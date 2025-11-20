@@ -27,6 +27,11 @@ program
     "limits the maximum number of URLs per sitemap file",
     "50000",
   )
+  .option(
+    "-d, --max-depth <maxDepth>",
+    "maximum crawl depth (0 = unlimited)",
+    "0",
+  )
   .option("-q, --query", "consider query string")
   .option("-u, --user-agent <agent>", "set custom User Agent")
   .option("-v, --verbose", "print details when crawling")
@@ -49,6 +54,7 @@ program
       filepath: options.filepath,
       maxEntriesPerFile: parseInt(options.maxEntries),
       maxConcurrency: parseInt(options.maxConcurrency),
+      maxDepth: parseInt(options.maxDepth),
       respectRobotsTxt: options.respectRobotsTxt,
       ignoreInvalidSSL: !!options.ignoreInvalidSsl,
     };
