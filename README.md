@@ -1,7 +1,5 @@
 # Sitemap Generator CLI
 
-[![Travis](https://img.shields.io/travis/lgraubner/sitemap-generator-cli.svg)](https://travis-ci.org/lgraubner/sitemap-generator-cli) [![David](https://img.shields.io/david/lgraubner/sitemap-generator-cli.svg)](https://david-dm.org/lgraubner/sitemap-generator-cli) [![npm](https://img.shields.io/npm/v/sitemap-generator-cli.svg)](https://www.npmjs.com/package/sitemap-generator-cli)
-
 > Create xml sitemaps from the command line.
 
 Generates a sitemap by crawling your site. Uses streams to efficiently write the sitemap to your drive. Is cappable of creating multiple sitemaps if threshold is reached. Respects robots.txt and meta tags.
@@ -11,13 +9,12 @@ Generates a sitemap by crawling your site. Uses streams to efficiently write the
 - [Install](#install)
 - [Usage](#usage)
 - [Options](#options)
-- [License](#license)
 
 ## Install
 
 This module is available on [npm](https://www.npmjs.com/).
 
-```BASH
+```sh
 npm install -g sitemap-generator-cli
 # or execute it directly with npx (since npm v5.2)
 npx sitemap-generator-cli https://example.com
@@ -27,7 +24,7 @@ npx sitemap-generator-cli https://example.com
 
 The crawler will fetch all folder URL pages and file types [parsed by Google](https://support.google.com/webmasters/answer/35287?hl=en). If present the `robots.txt` will be taken into account and possible rules are applied for each URL to consider if it should be added to the sitemap. Also the crawler will not fetch URL's from a page if the robots meta tag with the value `nofollow` is present and ignore them completely if `noindex` rule is present. The crawler is able to apply the `base` value to found links.
 
-```BASH
+```sh
 sitemap-generator [options] <url>
 ```
 
@@ -35,13 +32,13 @@ When the crawler finished the XML Sitemap will be built and saved to your specif
 
 Example:
 
-```BASH
+```sh
 sitemap-generator http://example.com
 ```
 
 ## Options
 
-```BASH
+```sh
 sitemap-generator --help
 
   Usage: cli [options] <url>
@@ -57,10 +54,6 @@ sitemap-generator --help
     -v, --verbose                           print details when crawling
     -c, --max-concurrency <maxConcurrency>  maximum number of requests the crawler will run simultaneously (default: 5)
     -r, --no-respect-robots-txt             controls whether the crawler should respect rules in robots.txt
-    -l, --last-mod                          add Last-Modified header to xml
-    -g, --change-freq <changeFreq>          adds a <changefreq> line to each URL in the sitemap.
-    -p, --priority-map <priorityMap>        priority for each depth url, values between 1.0 and 0.0, example: "1.0,0.8 0.6,0.4"
-    -x, --proxy <url>                       Use the passed proxy URL
     -h, --help                              output usage information
 ```
 
@@ -102,19 +95,3 @@ Set a custom User Agent used for crawling. Default is `Node/SitemapGenerator`.
 ### verbose
 
 Print debug messages during crawling process. Also prints out a summery when finished.
-
-### last-mod
-
-add Last-Modified header to xml
-
-### change-freq
-
-adds a <changefreq> line to each URL in the sitemap.
-
-### priority-map
-
-add priority for each depth url, values between 1.0 and 0.0, example: "1.0,0.8 0.6,0.4"
-
-## License
-
-[MIT](https://github.com/lgraubner/sitemap-generator/blob/master/LICENSE) © [Lars Graubner](https://larsgraubner.com)
