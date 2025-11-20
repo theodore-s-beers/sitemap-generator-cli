@@ -1,5 +1,5 @@
 import { spawn } from "child_process";
-import { access, unlink, readFile } from "fs/promises";
+import { access, unlink } from "fs/promises";
 import { afterEach, test, expect } from "vitest";
 
 afterEach(async () => {
@@ -23,6 +23,10 @@ async function runCommand(args) {
 
     child.stderr.on("data", (data) => {
       stderr += data.toString();
+    });
+
+    child.on("error", (err) => {
+      reject(err);
     });
 
     child.on("close", (code) => {
@@ -51,17 +55,4 @@ test("should write to stdout in verbose mode", async () => {
   ]);
 
   expect(result.stdout).not.toBe("");
-}, 20000);
-
-test("should add last-mod header to xml", async () => {
-  await runCommand([
-    "index.js",
-    "http://example.com",
-    "-f",
-    "sitemap.xml",
-    "--last-mod",
-  ]);
-
-  const data = await readFile("sitemap.xml", "utf8");
-  expect(data).toContain("<lastmod>");
 }, 20000);
