@@ -1,10 +1,25 @@
 {
-  "name": "sitemap-generator-cli",
+  "name": "@t6e/sitemap-generator-cli",
   "version": "0.1.0",
   "description": "Create XML sitemaps from the command line",
+  "keywords": [
+    "sitemap",
+    "xml",
+    "sitemap.xml",
+    "generator",
+    "crawler",
+    "cli",
+    "command-line",
+    "seo",
+    "google"
+  ],
+  "homepage": "https://github.com/theodore-s-beers/sitemap-generator-cli#readme",
+  "bugs": {
+    "url": "https://github.com/theodore-s-beers/sitemap-generator-cli/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/theodore-s-beers/sitemap-generator-cli"
+    "url": "https://github.com/theodore-s-beers/sitemap-generator-cli.git"
   },
   "license": "MIT",
   "author": "Theodore Beers",
@@ -13,16 +28,21 @@
   "bin": {
     "sitemap-generator": "index.js"
   },
+  "files": [
+    "index.js",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "format": "prettier --write .",
     "knip": "knip",
-    "lint": "eslint .",
+    "lint": "prettier --check . && eslint .",
     "test": "vitest run"
   },
   "dependencies": {
+    "@t6e/sitemap-generator": "^0.1.0",
     "chalk": "5.6.2",
-    "commander": "14.0.2",
-    "sitemap-generator": "github:theodore-s-beers/sitemap-generator"
+    "commander": "14.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -33,5 +53,11 @@
     "prettier": "3.6.2",
     "typescript": "^5.9.3",
     "vitest": "^4.0.10"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

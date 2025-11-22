@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 import { Command } from "commander";
-import SitemapGenerator from "sitemap-generator";
+import SitemapGenerator from "@t6e/sitemap-generator";
 import chalk from "chalk";
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
