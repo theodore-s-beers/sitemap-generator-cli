@@ -9,6 +9,7 @@ Generates a sitemap by crawling your site. Uses streams to efficiently write the
 This is a maintained and modernized fork of the original [`sitemap-generator-cli`](https://github.com/lgraubner/sitemap-generator-cli) by Lars Graubner. The original project has not been maintained since ca. 2020. This fork includes:
 
 - Migration to ESM (ES modules)
+- Migration to TypeScript with full type definitions
 - Updated to use the modernized [`@t6e/sitemap-generator`](https://www.npmjs.com/package/@t6e/sitemap-generator) library
 - Updated dependencies and security fixes
 - Modern development setup with Vitest, ESLint 9, and Prettier
@@ -73,20 +74,19 @@ sitemap-generator --help
 Usage: sitemap-generator [options] <url>
 
 Arguments:
-  url                                      URL to generate sitemap for
+  url                             URL to generate sitemap for
 
 Options:
-  -V, --version                            output the version number
-  -f, --filepath <filepath>                path to file including filename (default: "sitemap.xml")
-  -m, --max-entries <maxEntries>           limits the maximum number of URLs per sitemap file (default: "50000")
-  -d, --max-depth <maxDepth>               maximum crawl depth (0 = unlimited) (default: "0")
-  -q, --query                              consider query string
-  -u, --user-agent <agent>                 set custom User Agent
-  -v, --verbose                            print details when crawling
-  -c, --max-concurrency <maxConcurrency>   maximum number of requests the crawler will run simultaneously (default: "5")
-  -r, --no-respect-robots-txt              controls whether the crawler should respect rules in robots.txt
-  --ignore-invalid-ssl                     ignore invalid SSL certificates when crawling
-  -h, --help                               display help for command
+  -V, --version                   output the version number
+  -f, --filepath <filepath>       path to file including filename (default: "sitemap.xml")
+  -m, --max-entries <maxEntries>  limits the maximum number of URLs per sitemap file (default: "50000")
+  -d, --max-depth <maxDepth>      maximum crawl depth (0 = unlimited) (default: "0")
+  -q, --query                     consider query string
+  -u, --user-agent <agent>        set custom User Agent
+  -v, --verbose                   print details when crawling
+  -r, --no-respect-robots-txt     controls whether the crawler should respect rules in robots.txt
+  --ignore-invalid-ssl            ignore invalid SSL certificates when crawling
+  -h, --help                      display help for command
 ```
 
 ### `--filepath` / `-f`
@@ -107,10 +107,6 @@ Limits the maximum number of URLs per sitemap file. Useful for sites with lots o
 ### `--max-depth` / `-d`
 
 Maximum crawl depth from the original request. Set to `0` for unlimited depth (default), or specify a number to limit how deep the crawler will go. Useful for generating smaller sitemap files.
-
-### `--max-concurrency` / `-c`
-
-Maximum number of requests the crawler will run simultaneously. Defaults to 5.
 
 ### `--query` / `-q`
 
