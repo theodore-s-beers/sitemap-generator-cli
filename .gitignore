@@ -22,3 +22,6 @@ npm-debug.log*
 
 # Generated sitemaps (from testing the CLI)
 sitemap*.xml
+
+# Build output
+dist/

@@ -11,25 +11,30 @@ afterEach(async () => {
   }
 });
 
-async function runCommand(args) {
+interface CommandResult {
+  stdout: string;
+  stderr: string;
+}
+
+async function runCommand(args: string[]): Promise<CommandResult> {
   return new Promise((resolve, reject) => {
     const child = spawn("node", args);
     let stdout = "";
     let stderr = "";
 
-    child.stdout.on("data", (data) => {
+    child.stdout.on("data", (data: Buffer) => {
       stdout += data.toString();
     });
 
-    child.stderr.on("data", (data) => {
+    child.stderr.on("data", (data: Buffer) => {
       stderr += data.toString();
     });
 
-    child.on("error", (err) => {
+    child.on("error", (err: Error) => {
       reject(err);
     });
 
-    child.on("close", (code) => {
+    child.on("close", (code: number | null) => {
       if (code !== 0) {
         reject(new Error(`Process exited with code ${code}\n${stderr}`));
       } else {
@@ -40,14 +45,19 @@ async function runCommand(args) {
 }
 
 test("should create sitemap file", async () => {
-  await runCommand(["index.js", "http://example.com", "-f", "sitemap.xml"]);
+  await runCommand([
+    "dist/index.js",
+    "http://example.com",
+    "-f",
+    "sitemap.xml",
+  ]);
 
   await expect(access("sitemap.xml")).resolves.toBeUndefined();
 }, 20000);
 
 test("should write to stdout in verbose mode", async () => {
   const result = await runCommand([
-    "index.js",
+    "dist/index.js",
     "http://example.com",
     "-f",
     "sitemap.xml",

@@ -1,7 +1,9 @@
 #! /usr/bin/env node
 
 import { Command } from "commander";
-import SitemapGenerator from "@t6e/sitemap-generator";
+import SitemapGenerator, {
+  type SitemapGeneratorOptions,
+} from "@t6e/sitemap-generator";
 import chalk from "chalk";
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
@@ -49,11 +51,10 @@ program
     "ignore invalid SSL certificates when crawling",
   )
   .action((url, options) => {
-    const generatorOptions = {
+    const generatorOptions: SitemapGeneratorOptions = {
       stripQuerystring: !options.query,
       filepath: options.filepath,
       maxEntriesPerFile: parseInt(options.maxEntries),
-      maxConcurrency: parseInt(options.maxConcurrency),
       maxDepth: parseInt(options.maxDepth),
       respectRobotsTxt: options.respectRobotsTxt,
       ignoreInvalidSSL: !!options.ignoreInvalidSsl,
@@ -80,13 +81,14 @@ program
         console.log("[", chalk.cyan("IGN"), "]", chalk.gray(url));
       });
 
-      generator.on("error", (error) => {
+      generator.on("error", (error: unknown) => {
         errored += 1;
+        const err = error as { url: string; code: number };
         console.error(
           "[",
           chalk.red("ERR"),
           "]",
-          chalk.gray(error.url, ` (${error.code})`),
+          chalk.gray(err.url, ` (${err.code})`),
         );
       });
 
