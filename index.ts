@@ -38,11 +38,6 @@ program
   .option("-u, --user-agent <agent>", "set custom User Agent")
   .option("-v, --verbose", "print details when crawling")
   .option(
-    "-c, --max-concurrency <maxConcurrency>",
-    "maximum number of requests the crawler will run simultaneously",
-    "5",
-  )
-  .option(
     "-r, --no-respect-robots-txt",
     "controls whether the crawler should respect rules in robots.txt",
   )
